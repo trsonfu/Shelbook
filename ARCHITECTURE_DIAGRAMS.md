@@ -83,80 +83,301 @@ Shelbook is a Facebook-style social media application that combines:
 
 ## Database Schema
 
-### Core Tables
+### Entity Relationship Diagram
 
-#### `users`
-```sql
-- id (UUID, primary key)
-- wallet_address (TEXT, unique) -- Aptos wallet
-- username (TEXT)
-- display_name (TEXT)
-- avatar_url (TEXT)
-- bio (TEXT)
-- created_at, updated_at
+```mermaid
+erDiagram
+    users ||--o{ posts : creates
+    users ||--o{ stories : creates
+    users ||--o{ comments : writes
+    users ||--o{ likes : makes
+    users ||--o{ story_views : views
+    users ||--o{ follows : follows_as_follower
+    users ||--o{ follows : followed_as_following
+    posts ||--o{ comments : has
+    posts ||--o{ likes : receives
+    stories ||--o{ story_views : receives
+
+    users {
+        uuid id PK
+        text wallet_address UK "Aptos wallet"
+        text username UK
+        text display_name
+        text avatar_url
+        text bio
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    posts {
+        uuid id PK
+        uuid user_id FK
+        text shelby_file_id "Blockchain blob"
+        text shelby_file_url "CDN URL"
+        text file_type "image/video"
+        text caption
+        int media_width
+        int media_height
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    stories {
+        uuid id PK
+        uuid user_id FK
+        text shelby_file_id "Blockchain blob"
+        text shelby_file_url "CDN URL"
+        text file_type "image/video"
+        text caption "max 150 chars"
+        int media_width
+        int media_height
+        timestamptz created_at
+        timestamptz expires_at "24h expiry"
+        timestamptz updated_at
+    }
+
+    comments {
+        uuid id PK
+        uuid user_id FK
+        uuid post_id FK
+        text content
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    likes {
+        uuid id PK
+        uuid user_id FK
+        uuid post_id FK
+        timestamptz created_at
+    }
+
+    follows {
+        uuid id PK
+        uuid follower_id FK
+        uuid following_id FK
+        timestamptz created_at
+    }
+
+    story_views {
+        uuid id PK
+        uuid story_id FK
+        uuid user_id FK
+        timestamptz viewed_at
+    }
 ```
 
-#### `posts`
-```sql
-- id (UUID, primary key)
-- user_id (UUID → users)
-- shelby_file_id (TEXT) -- Blockchain blob ID
-- shelby_file_url (TEXT) -- CDN URL
-- file_type (image/video)
-- caption (TEXT)
-- media_width, media_height (INTEGER)
-- created_at, updated_at
+---
+
+### Table Definitions
+
+#### 📋 **users** - User Accounts
+```
+╔═══════════════════╦══════════════╦═════════════════════════════════╗
+║ Column            ║ Type         ║ Constraints                     ║
+╠═══════════════════╬══════════════╬═════════════════════════════════╣
+║ id                ║ UUID         ║ PRIMARY KEY, DEFAULT gen_uuid() ║
+║ wallet_address    ║ TEXT         ║ UNIQUE, NOT NULL                ║
+║ username          ║ TEXT         ║ UNIQUE                          ║
+║ display_name      ║ TEXT         ║                                 ║
+║ avatar_url        ║ TEXT         ║                                 ║
+║ bio               ║ TEXT         ║                                 ║
+║ created_at        ║ TIMESTAMPTZ  ║ DEFAULT NOW()                   ║
+║ updated_at        ║ TIMESTAMPTZ  ║ DEFAULT NOW()                   ║
+╚═══════════════════╩══════════════╩═════════════════════════════════╝
+
+Indexes:
+  • idx_users_wallet_address ON wallet_address (unique lookup)
+  
+Description: Core user table storing wallet-based accounts
 ```
 
-#### `stories` ⭐ NEW
-```sql
-- id (UUID, primary key)
-- user_id (UUID → users)
-- shelby_file_id (TEXT)
-- shelby_file_url (TEXT)
-- file_type (image/video)
-- caption (TEXT)
-- media_width, media_height (INTEGER)
-- created_at
-- expires_at (created_at + 24 hours)
-- updated_at
+#### 📸 **posts** - User Posts
+```
+╔═══════════════════╦══════════════╦═════════════════════════════════╗
+║ Column            ║ Type         ║ Constraints                     ║
+╠═══════════════════╬══════════════╬═════════════════════════════════╣
+║ id                ║ UUID         ║ PRIMARY KEY, DEFAULT gen_uuid() ║
+║ user_id           ║ UUID         ║ FOREIGN KEY → users(id)         ║
+║ shelby_file_id    ║ TEXT         ║ NOT NULL (Blockchain blob ID)   ║
+║ shelby_file_url   ║ TEXT         ║ NOT NULL (CDN URL)              ║
+║ file_type         ║ TEXT         ║ CHECK (image/video)             ║
+║ caption           ║ TEXT         ║                                 ║
+║ media_width       ║ INTEGER      ║                                 ║
+║ media_height      ║ INTEGER      ║                                 ║
+║ created_at        ║ TIMESTAMPTZ  ║ DEFAULT NOW()                   ║
+║ updated_at        ║ TIMESTAMPTZ  ║ DEFAULT NOW()                   ║
+╚═══════════════════╩══════════════╩═════════════════════════════════╝
+
+Indexes:
+  • idx_posts_user_id ON user_id (user's posts)
+  • idx_posts_created_at ON created_at DESC (feed ordering)
+  
+Foreign Keys:
+  • user_id → users(id) ON DELETE CASCADE
+
+Description: Permanent posts with media stored on Shelby Protocol
 ```
 
-#### `comments`
-```sql
-- id (UUID, primary key)
-- user_id (UUID → users)
-- post_id (UUID → posts)
-- content (TEXT)
-- created_at, updated_at
+#### 🎬 **stories** ⭐ NEW - Temporary Stories
+```
+╔═══════════════════╦══════════════╦═════════════════════════════════╗
+║ Column            ║ Type         ║ Constraints                     ║
+╠═══════════════════╬══════════════╬═════════════════════════════════╣
+║ id                ║ UUID         ║ PRIMARY KEY, DEFAULT gen_uuid() ║
+║ user_id           ║ UUID         ║ FOREIGN KEY → users(id)         ║
+║ shelby_file_id    ║ TEXT         ║ NOT NULL (Blockchain blob ID)   ║
+║ shelby_file_url   ║ TEXT         ║ NOT NULL (CDN URL)              ║
+║ file_type         ║ TEXT         ║ CHECK (image/video)             ║
+║ caption           ║ TEXT         ║ MAX 150 chars                   ║
+║ media_width       ║ INTEGER      ║                                 ║
+║ media_height      ║ INTEGER      ║                                 ║
+║ created_at        ║ TIMESTAMPTZ  ║ DEFAULT NOW()                   ║
+║ expires_at        ║ TIMESTAMPTZ  ║ DEFAULT NOW() + INTERVAL '24h'  ║
+║ updated_at        ║ TIMESTAMPTZ  ║ DEFAULT NOW()                   ║
+╚═══════════════════╩══════════════╩═════════════════════════════════╝
+
+Indexes:
+  • idx_stories_user_id ON user_id (user's stories)
+  • idx_stories_created_at ON created_at DESC (story ordering)
+  • idx_stories_expires_at ON expires_at (cleanup queries)
+  
+Foreign Keys:
+  • user_id → users(id) ON DELETE CASCADE
+
+Description: 24-hour temporary stories, auto-expire after expires_at
 ```
 
-#### `likes`
-```sql
-- id (UUID, primary key)
-- user_id (UUID → users)
-- post_id (UUID → posts)
-- created_at
-- UNIQUE(user_id, post_id)
+#### 💬 **comments** - Post Comments
+```
+╔═══════════════════╦══════════════╦═════════════════════════════════╗
+║ Column            ║ Type         ║ Constraints                     ║
+╠═══════════════════╬══════════════╬═════════════════════════════════╣
+║ id                ║ UUID         ║ PRIMARY KEY, DEFAULT gen_uuid() ║
+║ user_id           ║ UUID         ║ FOREIGN KEY → users(id)         ║
+║ post_id           ║ UUID         ║ FOREIGN KEY → posts(id)         ║
+║ content           ║ TEXT         ║ NOT NULL                        ║
+║ created_at        ║ TIMESTAMPTZ  ║ DEFAULT NOW()                   ║
+║ updated_at        ║ TIMESTAMPTZ  ║ DEFAULT NOW()                   ║
+╚═══════════════════╩══════════════╩═════════════════════════════════╝
+
+Indexes:
+  • idx_comments_post_id ON post_id (post's comments)
+  • idx_comments_user_id ON user_id (user's comments)
+  
+Foreign Keys:
+  • user_id → users(id) ON DELETE CASCADE
+  • post_id → posts(id) ON DELETE CASCADE
+
+Description: User comments on posts
 ```
 
-#### `follows`
-```sql
-- id (UUID, primary key)
-- follower_id (UUID → users)
-- following_id (UUID → users)
-- created_at
-- UNIQUE(follower_id, following_id)
+#### ❤️ **likes** - Post Likes
+```
+╔═══════════════════╦══════════════╦═════════════════════════════════╗
+║ Column            ║ Type         ║ Constraints                     ║
+╠═══════════════════╬══════════════╬═════════════════════════════════╣
+║ id                ║ UUID         ║ PRIMARY KEY, DEFAULT gen_uuid() ║
+║ user_id           ║ UUID         ║ FOREIGN KEY → users(id)         ║
+║ post_id           ║ UUID         ║ FOREIGN KEY → posts(id)         ║
+║ created_at        ║ TIMESTAMPTZ  ║ DEFAULT NOW()                   ║
+╚═══════════════════╩══════════════╩═════════════════════════════════╝
+
+Constraints:
+  • UNIQUE(user_id, post_id) - One like per user per post
+  
+Indexes:
+  • idx_likes_post_id ON post_id (post's like count)
+  • idx_likes_user_id ON user_id (user's liked posts)
+  
+Foreign Keys:
+  • user_id → users(id) ON DELETE CASCADE
+  • post_id → posts(id) ON DELETE CASCADE
+
+Description: Track which users liked which posts
 ```
 
-#### `story_views` ⭐ NEW
-```sql
-- id (UUID, primary key)
-- story_id (UUID → stories)
-- user_id (UUID → users)
-- viewed_at
-- UNIQUE(story_id, user_id)
+#### 👥 **follows** - User Relationships
 ```
+╔═══════════════════╦══════════════╦═════════════════════════════════╗
+║ Column            ║ Type         ║ Constraints                     ║
+╠═══════════════════╬══════════════╬═════════════════════════════════╣
+║ id                ║ UUID         ║ PRIMARY KEY, DEFAULT gen_uuid() ║
+║ follower_id       ║ UUID         ║ FOREIGN KEY → users(id)         ║
+║ following_id      ║ UUID         ║ FOREIGN KEY → users(id)         ║
+║ created_at        ║ TIMESTAMPTZ  ║ DEFAULT NOW()                   ║
+╚═══════════════════╩══════════════╩═════════════════════════════════╝
+
+Constraints:
+  • UNIQUE(follower_id, following_id) - Can't follow twice
+  • CHECK(follower_id != following_id) - Can't follow yourself
+  
+Indexes:
+  • idx_follows_follower_id ON follower_id (who user follows)
+  • idx_follows_following_id ON following_id (user's followers)
+  
+Foreign Keys:
+  • follower_id → users(id) ON DELETE CASCADE
+  • following_id → users(id) ON DELETE CASCADE
+
+Description: User follow relationships (who follows whom)
+```
+
+#### 👁️ **story_views** ⭐ NEW - Story View Tracking
+```
+╔═══════════════════╦══════════════╦═════════════════════════════════╗
+║ Column            ║ Type         ║ Constraints                     ║
+╠═══════════════════╬══════════════╬═════════════════════════════════╣
+║ id                ║ UUID         ║ PRIMARY KEY, DEFAULT gen_uuid() ║
+║ story_id          ║ UUID         ║ FOREIGN KEY → stories(id)       ║
+║ user_id           ║ UUID         ║ FOREIGN KEY → users(id)         ║
+║ viewed_at         ║ TIMESTAMPTZ  ║ DEFAULT NOW()                   ║
+╚═══════════════════╩══════════════╩═════════════════════════════════╝
+
+Constraints:
+  • UNIQUE(story_id, user_id) - One view per user per story
+  
+Indexes:
+  • idx_story_views_story_id ON story_id (story's view count)
+  • idx_story_views_user_id ON user_id (user's viewed stories)
+  
+Foreign Keys:
+  • story_id → stories(id) ON DELETE CASCADE
+  • user_id → users(id) ON DELETE CASCADE
+
+Description: Track who viewed which stories (future feature)
+```
+
+---
+
+### Data Integrity Rules
+
+```mermaid
+graph TD
+    A[DELETE user] --> B[CASCADE: Delete all posts]
+    A --> C[CASCADE: Delete all stories]
+    A --> D[CASCADE: Delete all comments]
+    A --> E[CASCADE: Delete all likes]
+    A --> F[CASCADE: Delete all follows]
+    A --> G[CASCADE: Delete all story views]
+    
+    H[DELETE post] --> I[CASCADE: Delete all comments]
+    H --> J[CASCADE: Delete all likes]
+    
+    K[DELETE story] --> L[CASCADE: Delete all views]
+```
+
+#### Unique Constraints
+- ✅ One wallet address per user
+- ✅ One username per user  
+- ✅ One like per user per post
+- ✅ One follow relationship per user pair
+- ✅ One view record per user per story
+
+#### Check Constraints
+- ✅ file_type must be 'image' or 'video'
+- ✅ follower_id ≠ following_id (can't self-follow)
+- ✅ expires_at > created_at (stories)
 
 ---
 
