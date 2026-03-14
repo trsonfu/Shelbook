@@ -1,14 +1,6 @@
-import { redirect } from 'next/navigation'
-import { getSession } from '@/lib/auth'
 import ExploreGrid from '@/components/post/ExploreGrid'
 
 export default async function ExplorePage() {
-  const session = await getSession()
-
-  if (!session?.authenticated) {
-    redirect('/login')
-  }
-
   return (
     <div className="min-h-screen py-4">
       <div className="max-w-[1200px] mx-auto px-4">

@@ -8,7 +8,7 @@ import ProfileEditModal from '@/components/profile/ProfileEditModal'
 
 interface FacebookProfileProps {
   userId: string
-  currentUserId: string
+  currentUserId?: string
   currentWalletAddress?: string
 }
 

@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation'
-import { getSession } from '@/lib/auth'
 import { mockPosts } from '@/lib/mock/posts'
 
 export default async function StoryViewPage({
@@ -7,12 +6,6 @@ export default async function StoryViewPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  const session = await getSession()
-
-  if (!session?.authenticated) {
-    redirect('/login')
-  }
-
   const { id } = await params
   const story = mockPosts.find((p) => `story_${p.id}` === id) ?? mockPosts[0]
 
