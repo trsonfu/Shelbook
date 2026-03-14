@@ -5,16 +5,6 @@ export function middleware(request: NextRequest) {
   const session = request.cookies.get('session')
   const { pathname } = request.nextUrl
 
-  // Public routes that don't require authentication
-  const publicRoutes = ['/login', '/api/auth/login']
-  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
-
-  // If accessing protected route without session, redirect to login
-  if (!isPublicRoute && !session) {
-    const loginUrl = new URL('/login', request.url)
-    return NextResponse.redirect(loginUrl)
-  }
-
   // If accessing login page with valid session, redirect to home
   if (pathname === '/login' && session) {
     try {

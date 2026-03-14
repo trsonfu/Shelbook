@@ -44,8 +44,6 @@ export function WalletChangeDetector() {
           previousWalletRef.current = currentWallet
           // Refresh the page to update all components with new session
           router.refresh()
-          // Always go to home after fresh login
-          router.push('/')
           return
         }
       }
@@ -78,8 +76,6 @@ export function WalletChangeDetector() {
           previousWalletRef.current = currentWallet
           // Refresh the page to update all components with new session
           router.refresh()
-          // Redirect to home
-          router.push('/')
         }
       }
 
