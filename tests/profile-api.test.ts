@@ -34,7 +34,7 @@ async function testProfileAPI() {
     const profileData = {
       display_name: 'Test User',
       bio: 'This is a test profile',
-      avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=test'
+      avatar_url: 'https://api.dicebear.com/9.x/adventurer/svg?seed=test'
     }
 
     const response = await fetch(`${API_BASE_URL}/users/${TEST_WALLET_ADDRESS}`, {
@@ -82,7 +82,7 @@ async function testProfileAPI() {
     const updatedData = {
       display_name: 'Updated Test User',
       bio: 'This profile has been updated',
-      avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=updated'
+      avatar_url: 'https://api.dicebear.com/9.x/adventurer/svg?seed=updated'
     }
 
     const response = await fetch(`${API_BASE_URL}/users/${TEST_WALLET_ADDRESS}`, {

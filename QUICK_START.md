@@ -132,7 +132,7 @@ Try these free avatar services:
 
 ```
 # DiceBear (customizable)
-https://api.dicebear.com/7.x/avataaars/svg?seed=yourname
+https://api.dicebear.com/9.x/adventurer/svg?seed=yourname
 
 # UI Avatars (initials)
 https://ui-avatars.com/api/?name=Your+Name&size=200

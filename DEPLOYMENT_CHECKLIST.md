@@ -64,10 +64,10 @@ npm run dev
 - [ ] **Expected:** See wallet address displayed
 - [ ] Click "Set Up Profile" button
 - [ ] **Expected:** Edit modal opens
-- [ ] Fill in:
+  - [ ] Fill in:
   - [ ] Display Name (e.g., "John Doe")
   - [ ] Bio (e.g., "Test user profile")
-  - [ ] Avatar URL (e.g., "https://api.dicebear.com/7.x/avataaars/svg?seed=test")
+  - [ ] Avatar URL (e.g., "https://api.dicebear.com/9.x/adventurer/svg?seed=test")
 - [ ] Click "Save"
 - [ ] **Expected:** Modal closes
 - [ ] **Expected:** Profile page shows with entered information
@@ -125,7 +125,7 @@ fetch(`/api/users/${testWallet}`, {
   body: JSON.stringify({
     display_name: 'Test User',
     bio: 'API Test',
-    avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=test'
+    avatar_url: 'https://api.dicebear.com/9.x/adventurer/svg?seed=test'
   })
 }).then(r => r.json()).then(console.log)
 // Expected: { success: true, user: {...}, created: true }
