@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useWallet } from '@aptos-labs/wallet-adapter-react'
+import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { mockPosts } from '@/lib/mock/posts'
 
 function IconPlus(props: { className?: string }) {
@@ -22,6 +23,7 @@ type StoryItem = {
 
 export default function FacebookStories() {
   const { account } = useWallet()
+  const { user } = useCurrentUser()
 
   const stories: StoryItem[] = mockPosts.slice(0, 5).map((p, i) => ({
     id: `story_${p.id}`,
@@ -36,9 +38,17 @@ export default function FacebookStories() {
         <Link href="/create">
           <div className="relative flex-shrink-0 w-28 h-48 rounded-lg overflow-hidden cursor-pointer group">
             <div className="absolute inset-0 bg-gray-200 dark:bg-[#3a3b3c] flex items-center justify-center">
-              <div className="w-20 h-20 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
-                {account ? account.address.toString().slice(0, 2).toUpperCase() : 'U'}
-              </div>
+              {user?.avatar_url ? (
+                <img 
+                  src={user.avatar_url} 
+                  alt={user.display_name || user.username}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
+                  {account ? account.address.toString().slice(0, 2).toUpperCase() : 'U'}
+                </div>
+              )}
             </div>
             <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-[#242526] p-2 group-hover:bg-gray-50 dark:group-hover:bg-[#3a3b3c] transition-colors">
               <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-white dark:bg-[#242526] flex items-center justify-center border-4 border-white dark:border-[#242526]">

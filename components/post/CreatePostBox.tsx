@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useWallet } from '@aptos-labs/wallet-adapter-react'
+import { useCurrentUser } from '@/hooks/useCurrentUser'
 import CreatePostModal from './CreatePostModal'
 
 function IconPhoto(props: { className?: string }) {
@@ -21,16 +22,25 @@ function IconSmile(props: { className?: string }) {
 }
 
 export default function CreatePostBox() {
-  const { account } = useWallet()
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const { account } = useWallet()
+  const { user } = useCurrentUser()
 
   return (
     <>
       <div className="bg-white dark:bg-[#242526] rounded-lg shadow-sm border border-gray-200 dark:border-[#3e4042] p-4 mb-4">
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
-            {account ? account.address.toString().slice(0, 2).toUpperCase() : 'U'}
-          </div>
+          {user?.avatar_url ? (
+            <img 
+              src={user.avatar_url} 
+              alt={user.display_name || user.username}
+              className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+              {account ? account.address.toString().slice(0, 2).toUpperCase() : 'U'}
+            </div>
+          )}
           <button
             onClick={() => setIsModalOpen(true)}
             className="flex-1 text-left px-4 py-2.5 rounded-full bg-gray-100 dark:bg-[#3a3b3c] hover:bg-gray-200 dark:hover:bg-[#4e4f50] transition-colors text-gray-500 dark:text-gray-400 text-[15px]"

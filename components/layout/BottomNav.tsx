@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useWallet } from '@aptos-labs/wallet-adapter-react'
+import { useCurrentUser } from '@/hooks/useCurrentUser'
 import clsx from 'clsx'
 
 type BottomItem = {
@@ -60,6 +61,7 @@ function IconBell(props: { className?: string }) {
 export default function BottomNav() {
   const pathname = usePathname()
   const { account } = useWallet()
+  const { user } = useCurrentUser()
 
   const items: BottomItem[] = [
     {
@@ -86,7 +88,13 @@ export default function BottomNav() {
       key: 'profile',
       href: account ? `/profile/${account.address.toString()}` : '#',
       label: 'Profile',
-      icon: account ? (
+      icon: user?.avatar_url ? (
+        <img 
+          src={user.avatar_url} 
+          alt={user.display_name || user.username}
+          className="w-6 h-6 rounded-full object-cover"
+        />
+      ) : account ? (
         <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-semibold">
           {account.address.toString().slice(0, 2).toUpperCase()}
         </div>

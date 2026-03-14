@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useWallet } from '@aptos-labs/wallet-adapter-react'
+import { useCurrentUser } from '@/hooks/useCurrentUser'
 import clsx from 'clsx'
 
 function IconHome(props: { className?: string }) {
@@ -16,7 +17,7 @@ function IconHome(props: { className?: string }) {
 function IconUsers(props: { className?: string }) {
   return (
     <svg className={props.className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M17.5 12a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Zm-7 7.5a7.5 7.5 0 1 1 15 0v.5H3.5v-.5a7.5 7.5 0 0 1 7.5-7.5Zm-6-3a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm0 3a4 4 0 0 1 4-4H13a4 4 0 0 1 4 4v1H0v-1a4 4 0 0 1 4-4Z" />
+      <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
     </svg>
   )
 }
@@ -41,6 +42,7 @@ function IconChevronDown(props: { className?: string }) {
 export default function FacebookLeftSidebar() {
   const pathname = usePathname()
   const { account } = useWallet()
+  const { user } = useCurrentUser()
 
   const navItems = [
     {
@@ -72,11 +74,19 @@ export default function FacebookLeftSidebar() {
             href={`/profile/${account.address.toString()}` as any}
             className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#3a3b3c] transition-colors"
           >
-            <div className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
-              {account.address.toString().slice(0, 2).toUpperCase()}
-            </div>
+            {user?.avatar_url ? (
+              <img 
+                src={user.avatar_url} 
+                alt={user.display_name || user.username}
+                className="w-9 h-9 rounded-full object-cover flex-shrink-0"
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                {account.address.toString().slice(0, 2).toUpperCase()}
+              </div>
+            )}
             <span className="font-medium text-gray-900 dark:text-gray-100 text-[15px] truncate">
-              {account.address.toString().slice(0, 6)}...{account.address.toString().slice(-4)}
+              {user?.display_name || user?.username || `${account.address.toString().slice(0, 6)}...${account.address.toString().slice(-4)}`}
             </span>
           </Link>
         )}

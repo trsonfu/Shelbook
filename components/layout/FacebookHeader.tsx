@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { useWallet } from '@aptos-labs/wallet-adapter-react'
 import { XChainWalletSelector } from '@shelby-protocol/ui/components/x-chain-wallet-selector'
+import { useCurrentUser } from '@/hooks/useCurrentUser'
 import clsx from 'clsx'
 
 function IconHome(props: { className?: string }) {
@@ -26,7 +27,7 @@ function IconHomeAlt(props: { className?: string }) {
 function IconUsers(props: { className?: string }) {
   return (
     <svg className={props.className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M17.5 12a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Zm-7 7.5a7.5 7.5 0 1 1 15 0v.5H3.5v-.5a7.5 7.5 0 0 1 7.5-7.5Zm-6-3a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm0 3a4 4 0 0 1 4-4H13a4 4 0 0 1 4 4v1H0v-1a4 4 0 0 1 4-4Z" />
+      <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
     </svg>
   )
 }
@@ -69,6 +70,7 @@ function IconSearch(props: { className?: string }) {
 export default function FacebookHeader() {
   const pathname = usePathname()
   const { account } = useWallet()
+  const { user } = useCurrentUser()
   const [searchFocused, setSearchFocused] = useState(false)
 
   const isActive = (path: string) => {
@@ -148,15 +150,25 @@ export default function FacebookHeader() {
             <Link
               href={`/profile/${account.address.toString()}`}
               className={clsx(
-                "flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors border-2",
+                "flex items-center justify-center w-10 h-10 rounded-full border-2 overflow-hidden",
                 isActive(`/profile/${account.address.toString()}`) 
                   ? "border-blue-500" 
-                  : "border-transparent"
+                  : "border-transparent hover:border-gray-300 dark:hover:border-gray-600"
               )}
             >
-              <span className="text-white font-semibold text-sm">
-                {account.address.toString().slice(0, 2).toUpperCase()}
-              </span>
+              {user?.avatar_url ? (
+                <img 
+                  src={user.avatar_url} 
+                  alt={user.display_name || user.username}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-blue-500 flex items-center justify-center">
+                  <span className="text-white font-semibold text-sm">
+                    {account.address.toString().slice(0, 2).toUpperCase()}
+                  </span>
+                </div>
+              )}
             </Link>
           )}
           
