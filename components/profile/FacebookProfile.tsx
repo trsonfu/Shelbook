@@ -222,15 +222,16 @@ export default function FacebookProfile({ userId, currentUserId, currentWalletAd
     )
   }
 
-  if (!user) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-gray-600 dark:text-gray-400 text-lg">User not found</p>
-        <p className="text-gray-500 dark:text-gray-500 mt-2">
-          This user hasn't set up their profile yet
-        </p>
-      </div>
-    )
+  // If user doesn't exist, create a placeholder user object with the wallet address
+  const displayUser = user || {
+    id: userId,
+    wallet_address: walletAddress || userId,
+    username: `user_${userId.slice(0, 8)}`,
+    display_name: undefined,
+    avatar_url: undefined,
+    bio: undefined,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   }
 
   return (
@@ -252,15 +253,15 @@ export default function FacebookProfile({ userId, currentUserId, currentWalletAd
                 {/* Avatar */}
                 <div className="relative inline-block">
                   <div className="w-40 h-40 rounded-full border-4 border-white dark:border-[#242526] bg-blue-500 flex items-center justify-center overflow-hidden shadow-lg">
-                    {user.avatar_url ? (
+                    {displayUser.avatar_url ? (
                       <img
-                        src={user.avatar_url}
-                        alt={user.display_name || user.username}
+                        src={displayUser.avatar_url}
+                        alt={displayUser.display_name || displayUser.username}
                         className="w-full h-full object-cover"
                       />
                     ) : (
                       <span className="text-5xl font-bold text-white">
-                        {(user.display_name || user.username || 'U')[0].toUpperCase()}
+                        {(displayUser.display_name || displayUser.username || displayUser.wallet_address.slice(2, 4))[0].toUpperCase()}
                       </span>
                     )}
                   </div>
@@ -269,7 +270,7 @@ export default function FacebookProfile({ userId, currentUserId, currentWalletAd
                 {/* Name + Stats */}
                 <div className="pb-4">
                   <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                    {user.display_name || user.username || 'Unknown User'}
+                    {displayUser.display_name || displayUser.username || `User ${displayUser.wallet_address.slice(0, 8)}`}
                   </h1>
                   <p className="text-gray-600 dark:text-gray-400 mt-1">
                     {followersCount} {followersCount === 1 ? 'follower' : 'followers'}
@@ -318,9 +319,20 @@ export default function FacebookProfile({ userId, currentUserId, currentWalletAd
             </div>
 
             {/* Bio */}
-            {user.bio && (
+            {displayUser.bio && (
               <div className="mt-4 text-gray-700 dark:text-gray-300">
-                {user.bio}
+                {displayUser.bio}
+              </div>
+            )}
+            
+            {/* Notice for profiles without data */}
+            {!user && (
+              <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <p className="text-sm text-blue-800 dark:text-blue-300">
+                  {isOwnProfile 
+                    ? "Your profile is empty. Click 'Edit profile' to add your information!"
+                    : "This user hasn't set up their profile yet."}
+                </p>
               </div>
             )}
 
@@ -353,7 +365,7 @@ export default function FacebookProfile({ userId, currentUserId, currentWalletAd
                 className="w-full flex items-center gap-3 px-4 py-3 bg-gray-100 dark:bg-[#3a3b3c] hover:bg-gray-200 dark:hover:bg-[#4e4f50] rounded-lg transition-colors"
               >
                 <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm">
-                  {user.display_name?.[0]?.toUpperCase() || 'U'}
+                  {displayUser.display_name?.[0]?.toUpperCase() || displayUser.wallet_address.slice(2, 4).toUpperCase()}
                 </div>
                 <span className="text-gray-600 dark:text-gray-400 text-left">What's on your mind?</span>
               </button>
@@ -418,6 +430,7 @@ export default function FacebookProfile({ userId, currentUserId, currentWalletAd
         </div>
       </div>
 
+      {/* Show edit modal only for own profiles */}
       {isOwnProfile && (
         <>
           <CreatePostModal
@@ -433,9 +446,9 @@ export default function FacebookProfile({ userId, currentUserId, currentWalletAd
             onClose={() => setIsEditModalOpen(false)}
             onSave={handleSaveProfile}
             initialData={{
-              display_name: user?.display_name,
-              bio: user?.bio,
-              avatar_url: user?.avatar_url,
+              display_name: displayUser?.display_name,
+              bio: displayUser?.bio,
+              avatar_url: displayUser?.avatar_url,
             }}
           />
         </>
