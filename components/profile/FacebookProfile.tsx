@@ -195,6 +195,40 @@ export default function FacebookProfile({ userId, currentUserId, currentWalletAd
       </div>
     )
   }
+  
+  // Check if user is viewing wrong profile (old wallet) - redirect to current wallet's profile
+  // This happens when user switches wallets but browser still has old profile URL
+  if (!loading && currentWalletAddress && userId !== currentWalletAddress && userId.startsWith('0x')) {
+    console.warn('⚠️ URL wallet mismatch detected!')
+    console.warn('URL shows:', userId)
+    console.warn('Current wallet:', currentWalletAddress)
+    console.warn('Redirecting to your actual profile...')
+    
+    return (
+      <div className="flex flex-col justify-center items-center min-h-screen">
+        <div className="max-w-md mx-auto p-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+          <div className="text-center">
+            <div className="text-4xl mb-4">⚠️</div>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              Wrong Profile Detected
+            </h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              You're viewing a profile from a different wallet. Redirecting you to your current wallet's profile...
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">
+              Current wallet: {currentWalletAddress.slice(0, 10)}...{currentWalletAddress.slice(-8)}
+            </p>
+            <a
+              href={`/profile/${currentWalletAddress}`}
+              className="inline-block px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors"
+            >
+              Go to My Profile
+            </a>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   // Show setup profile UI if user doesn't exist but it's their own profile
   console.log('Render check:', { 
