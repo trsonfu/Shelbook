@@ -62,7 +62,7 @@ export async function GET(
   }
 }
 
-// Add PATCH endpoint to update user profile
+// PATCH/PUT endpoint to create or update user profile (UPSERT)
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -70,51 +70,93 @@ export async function PATCH(
   try {
     const { id } = await params
     const body = await request.json()
-    const { display_name, bio, avatar_url } = body
+    const { display_name, bio, avatar_url, username } = body
 
-    // Find user by wallet address or ID
-    let query = supabase.from('users').select('*')
+    console.log('PATCH /api/users/[id]:', { id, body })
+
+    // Validate wallet address format
+    const isWalletAddress = id.startsWith('0x') && id.length > 20
     
-    if (id.startsWith('0x') && id.length > 20) {
-      query = query.eq('wallet_address', id)
-    } else {
-      query = query.eq('id', id)
-    }
+    if (!isWalletAddress) {
+      // If it's a UUID, we need to find and update existing user
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', id)
+        .single()
 
-    const { data: existingUser } = await query.single()
+      if (!existingUser) {
+        return NextResponse.json(
+          { error: 'User not found' },
+          { status: 404 }
+        )
+      }
 
-    if (!existingUser) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
-    }
+      // Update existing user by UUID
+      const { data: updatedUser, error } = await supabase
+        .from('users')
+        .update({
+          display_name: display_name || null,
+          bio: bio || null,
+          avatar_url: avatar_url || null,
+          username: username || existingUser.username,
+        })
+        .eq('id', id)
+        .select()
+        .single()
 
-    // Update user
-    const { data: updatedUser, error } = await supabase
-      .from('users')
-      .update({
-        display_name,
-        bio,
-        avatar_url,
-        updated_at: new Date().toISOString(),
+      if (error) {
+        throw error
+      }
+
+      return NextResponse.json({
+        success: true,
+        user: updatedUser,
       })
-      .eq('id', existingUser.id)
+    }
+
+    // For wallet addresses, use UPSERT (insert or update)
+    const walletAddress = id
+
+    // Generate a default username if not provided
+    const defaultUsername = username || `user_${walletAddress.slice(0, 8)}`
+
+    // Use upsert to create or update the user
+    const { data: upsertedUser, error: upsertError } = await supabase
+      .from('users')
+      .upsert(
+        {
+          wallet_address: walletAddress,
+          username: defaultUsername,
+          display_name: display_name || null,
+          bio: bio || null,
+          avatar_url: avatar_url || null,
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: 'wallet_address', // Use wallet_address as unique constraint
+          ignoreDuplicates: false, // Update if exists
+        }
+      )
       .select()
       .single()
 
-    if (error) {
-      throw error
+    if (upsertError) {
+      console.error('Upsert error:', upsertError)
+      throw upsertError
     }
+
+    console.log('Profile upserted successfully:', upsertedUser)
 
     return NextResponse.json({
       success: true,
-      user: updatedUser,
+      user: upsertedUser,
+      created: !upsertedUser.display_name && display_name, // Indicate if this was a new profile
     })
   } catch (error: any) {
-    console.error('Error updating user:', error)
+    console.error('Error updating/creating user:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to update user' },
+      { error: error.message || 'Failed to update profile', details: error },
       { status: 500 }
     )
   }

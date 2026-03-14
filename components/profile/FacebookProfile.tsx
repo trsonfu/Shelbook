@@ -129,22 +129,34 @@ export default function FacebookProfile({ userId, currentUserId, currentWalletAd
 
   const handleSaveProfile = async (data: { display_name: string; bio: string; avatar_url: string }) => {
     try {
+      console.log('Saving profile:', data)
+      console.log('Request URL:', `/api/users/${userId}`)
+
       const response = await fetch(`/api/users/${userId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       })
 
+      const result = await response.json()
+      console.log('Save profile response:', result)
+
       if (!response.ok) {
-        throw new Error('Failed to update profile')
+        throw new Error(result.error || 'Failed to update profile')
       }
 
-      const result = await response.json()
+      // Update local state with the new user data
       setUser(result.user)
+      setWalletAddress(result.user.wallet_address)
       setIsEditModalOpen(false)
+      
+      // Optionally refetch to ensure we have the latest data
+      await fetchProfile()
+      
+      console.log('Profile updated successfully!')
     } catch (error) {
       console.error('Error updating profile:', error)
-      alert('Failed to update profile')
+      alert(error instanceof Error ? error.message : 'Failed to update profile')
     }
   }
 
