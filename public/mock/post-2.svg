@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+  <defs>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="0.5" stop-color="#111827"/>
+      <stop offset="1" stop-color="#0b1220"/>
+    </linearGradient>
+    <radialGradient id="glow2" cx="60%" cy="35%" r="70%">
+      <stop offset="0" stop-color="#f472b6" stop-opacity="0.5"/>
+      <stop offset="0.55" stop-color="#fb7185" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="1200" fill="url(#g2)"/>
+  <rect width="1200" height="1200" fill="url(#glow2)"/>
+  <g opacity="0.95" fill="none" stroke="#e5e7eb" stroke-opacity="0.25" stroke-width="10">
+    <path d="M120 820c120-140 220-200 340-150s210 140 330 70 210-220 290-140" />
+    <path d="M120 900c140-120 260-160 360-120s170 120 290 80 210-200 320-120" />
+  </g>
+  <g fill="#e5e7eb" font-family="Arial, Helvetica, sans-serif">
+    <text x="80" y="150" font-size="56" opacity="0.92">Mock Photo</text>
+    <text x="80" y="220" font-size="28" opacity="0.65">/public/mock/post-2.svg</text>
+  </g>
+</svg>
+

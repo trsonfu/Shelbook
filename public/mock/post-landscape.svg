@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1910" height="1000" viewBox="0 0 1910 1000">
+  <defs>
+    <linearGradient id="lbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#020617" />
+      <stop offset="0.6" stop-color="#111827" />
+      <stop offset="1" stop-color="#0b1220" />
+    </linearGradient>
+    <radialGradient id="lglow" cx="70%" cy="30%" r="75%">
+      <stop offset="0" stop-color="#a78bfa" stop-opacity="0.35" />
+      <stop offset="0.55" stop-color="#38bdf8" stop-opacity="0.18" />
+      <stop offset="1" stop-color="#000" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="1910" height="1000" fill="url(#lbg)" />
+  <rect width="1910" height="1000" fill="url(#lglow)" />
+  <g opacity="0.9" fill="none" stroke="#e5e7eb" stroke-opacity="0.20" stroke-width="10">
+    <path d="M120 700c220-180 420-240 630-170s370 210 600 90 370-270 520-160" />
+    <path d="M120 800c260-150 490-190 690-130s300 170 520 120 350-240 580-150" />
+  </g>
+  <g fill="#e5e7eb" font-family="Arial, Helvetica, sans-serif">
+    <text x="80" y="150" font-size="56" opacity="0.92">Mock Landscape</text>
+    <text x="80" y="220" font-size="28" opacity="0.65">/public/mock/post-landscape.svg</text>
+    <text x="80" y="290" font-size="22" opacity="0.55">1910×1000 (1.91:1)</text>
+  </g>
+</svg>
+

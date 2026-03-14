@@ -1,0 +1,48 @@
+{
+  "name": "instagram",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "supabase:login": "supabase login",
+    "supabase:init": "supabase init",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:status": "supabase status",
+    "supabase:link": "supabase link",
+    "supabase:db:push": "supabase db push",
+    "supabase:db:reset": "supabase db reset",
+    "supabase:db:pull": "supabase db pull",
+    "supabase:migration:new": "supabase migration new",
+    "supabase:migration:list": "supabase migration list",
+    "supabase:types": "supabase gen types typescript --linked > types/database.types.ts"
+  },
+  "dependencies": {
+    "@aptos-labs/derived-wallet-ethereum": "^0.8.5",
+    "@aptos-labs/derived-wallet-solana": "^0.10.0",
+    "@aptos-labs/ts-sdk": "^5.1.1",
+    "@aptos-labs/wallet-adapter-react": "^8.1.0",
+    "@shelby-protocol/sdk": "^0.2.4",
+    "@shelby-protocol/ui": "file:./packages/ui",
+    "@supabase/supabase-js": "^2.93.3",
+    "clsx": "^2.1.1",
+    "next": "16.1.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "tailwind-merge": "^3.4.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "supabase": "^2.74.5",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

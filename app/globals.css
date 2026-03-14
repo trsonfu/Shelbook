@@ -1,0 +1,168 @@
+@import "@shelby-protocol/ui/globals.css";
+@import "tailwindcss";
+
+/* Facebook-style Design System
+ * Colors and styling inspired by Facebook's modern interface
+ */
+@theme {
+  --color-background: var(--app-background-color);
+  --color-foreground: var(--app-foreground-color);
+  --color-surface: var(--app-surface-color);
+  --color-surface-2: var(--app-surface-2-color);
+  --color-border: var(--app-border-color);
+  --color-muted: var(--app-muted-color);
+  --color-muted-2: var(--app-muted-2-color);
+
+  /* Facebook blue as primary brand color */
+  --color-brand: var(--app-brand-color);
+  --color-brand-strong: var(--app-brand-strong-color);
+  --color-brand-strong-hover: var(--app-brand-strong-hover-color);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* THEME PALETTES - Facebook Style */
+
+:root {
+  color-scheme: light;
+}
+
+/* Light Mode - Facebook Default */
+:root[data-theme='light'],
+:root:not(.dark) {
+  color-scheme: light;
+  --app-background-color: #f0f2f5;
+  --app-foreground-color: #050505;
+  --app-surface-color: #ffffff;
+  --app-surface-2-color: #f7f8fa;
+  --app-border-color: #e4e6eb;
+  --app-muted-color: #65676b;
+  --app-muted-2-color: #8a8d91;
+
+  --app-brand-color: #1877f2; /* Facebook blue */
+  --app-brand-strong-color: #1877f2;
+  --app-brand-strong-hover-color: #166fe5;
+
+  --brand-gradient: linear-gradient(90deg, #1877f2, #42b72a);
+}
+
+/* Dark Mode - Facebook Dark Theme */
+:root[data-theme='dark'],
+:root.dark {
+  color-scheme: dark;
+  --app-background-color: #18191a;
+  --app-foreground-color: #e4e6eb;
+  --app-surface-color: #242526;
+  --app-surface-2-color: #3a3b3c;
+  --app-border-color: #3e4042;
+  --app-muted-color: #b0b3b8;
+  --app-muted-2-color: #8a8d91;
+
+  --app-brand-color: #2d88ff; /* Lighter blue for dark mode */
+  --app-brand-strong-color: #2d88ff;
+  --app-brand-strong-hover-color: #4e9eff;
+
+  --brand-gradient: linear-gradient(90deg, #2d88ff, #42b72a);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--app-background-color);
+  color: var(--app-foreground-color);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Brand helpers */
+.brand-gradient {
+  background-image: var(--brand-gradient);
+  border: 1px solid transparent;
+  color: white;
+}
+
+.brand-gradient:hover {
+  filter: brightness(1.05);
+}
+
+.brand-gradient:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.35);
+}
+
+/* Facebook-style card shadows */
+.fb-card {
+  background: var(--app-surface-color);
+  border: 1px solid var(--app-border-color);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.fb-card:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Double-tap heart animation for PostCard */
+@keyframes tapHeart {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* Custom scrollbar - Facebook style */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Thin scrollbar utility */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.dark .scrollbar-thin {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* Hide scrollbar */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
