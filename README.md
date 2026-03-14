@@ -41,43 +41,93 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ## Deployment to Vercel
 
 ### Prerequisites
-1. Set up your Supabase project (see above)
-2. Have your environment variables ready
+1. **Set up your Supabase project first** (see below)
+2. Have your Supabase credentials ready
+3. Push your code to GitHub
 
-### Deploy Steps
+### Step 1: Set Up Supabase
 
-1. **Push your code to GitHub**
-```bash
-git push origin main
-```
+#### Create a Supabase Project
+1. Go to [supabase.com](https://supabase.com/dashboard)
+2. Click "New Project"
+3. Fill in:
+   - **Name:** Shelbook (or any name)
+   - **Database Password:** Choose a strong password
+   - **Region:** Choose closest to your users
+4. Wait for project to finish setting up (2-3 minutes)
 
-2. **Connect to Vercel**
-   - Go to [vercel.com](https://vercel.com)
-   - Import your GitHub repository
-   - Select the `Shelbook` repository
+#### Get Your Credentials
+1. In your Supabase project dashboard, go to **Settings** > **API**
+2. Copy these values:
+   - **Project URL** (e.g., `https://abcdefgh.supabase.co`)
+   - **anon/public key** (under "Project API keys")
+   - **service_role key** (under "Project API keys" - keep this secret!)
 
-3. **Configure Environment Variables**
+#### Run Database Migrations
+1. Install Supabase CLI:
+   ```bash
+   npm install -g supabase
+   ```
+
+2. Link your project:
+   ```bash
+   supabase link --project-ref your-project-ref
+   ```
+   (Get project-ref from your Supabase project URL: `https://[project-ref].supabase.co`)
+
+3. Push migrations:
+   ```bash
+   npm run supabase:db:push
+   ```
+
+### Step 2: Deploy to Vercel
+
+1. **Push to GitHub**
+   ```bash
+   git push origin main
+   ```
+
+2. **Import to Vercel**
+   - Go to [vercel.com/new](https://vercel.com/new)
+   - Select your GitHub repository
+   - Click "Import"
+
+3. **Configure Environment Variables** (CRITICAL!)
    
-   Add these in Vercel Dashboard > Settings > Environment Variables:
+   In the Vercel project settings, add these environment variables:
 
-   **Required:**
-   ```
+   ```env
+   # REQUIRED - Get these from Supabase Dashboard > Settings > API
    NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
-   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+   SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
    ```
 
-   **Optional:**
-   ```
-   NEXT_PUBLIC_SHELBY_API_KEY=your-shelby-api-key
-   NEXT_PUBLIC_APTOS_API_KEY=your-aptos-api-key
-   OPENAI_API_KEY=your-openai-key
-   ```
+   **⚠️ Without these, login will fail with "Database is not configured" error**
 
 4. **Deploy**
    - Click "Deploy"
-   - Wait for the build to complete
-   - Your app will be live at `your-project.vercel.app`
+   - Wait for build to complete
+   - Your app will be live!
+
+### Troubleshooting Deployment
+
+#### "Database is not configured" Error
+- ✅ Verify environment variables are set in Vercel Dashboard
+- ✅ Check that values don't contain `xxxxx` or placeholders
+- ✅ Ensure you copied the full key (starts with `eyJ...`)
+- ✅ Redeploy after adding environment variables
+
+#### "Failed to create user account" Error
+- ✅ Make sure you ran database migrations (`npm run supabase:db:push`)
+- ✅ Check Supabase project is active (not paused)
+- ✅ Verify service role key has correct permissions
+
+#### Can't Login on Production
+1. Open browser DevTools (F12) > Console
+2. Look for error messages
+3. Check Network tab for failed API calls
+4. Verify Supabase URL is accessible from your browser
 
 ### Important Notes
 

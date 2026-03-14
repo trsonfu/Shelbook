@@ -12,12 +12,32 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Check if Supabase is properly configured
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    
+    if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('xxxxx') || supabaseKey.includes('xxxxx')) {
+      return NextResponse.json(
+        { error: 'Database is not configured. Please set up Supabase environment variables.' },
+        { status: 503 }
+      )
+    }
+
     // Check if user exists in Supabase
-    const { data: existingUser } = await supabase
+    const { data: existingUser, error: selectError } = await supabase
       .from('users')
       .select('*')
       .eq('wallet_address', walletAddress)
       .single()
+
+    if (selectError && selectError.code !== 'PGRST116') {
+      // PGRST116 = no rows returned (user doesn't exist)
+      console.error('Supabase query error:', selectError)
+      return NextResponse.json(
+        { error: 'Database connection failed. Please check your configuration.' },
+        { status: 500 }
+      )
+    }
 
     let user
 
@@ -36,7 +56,11 @@ export async function POST(request: NextRequest) {
         .single()
 
       if (createError) {
-        throw createError
+        console.error('Failed to create user:', createError)
+        return NextResponse.json(
+          { error: 'Failed to create user account. Please try again.' },
+          { status: 500 }
+        )
       }
 
       user = newUser
@@ -63,6 +87,7 @@ export async function POST(request: NextRequest) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60, // 7 days
+      path: '/',
     })
 
     return response
